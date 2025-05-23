@@ -1,0 +1,111 @@
+networks:
+  avb-network:
+    driver: bridge
+
+services:
+  pg-users:
+      image: postgres:latest
+      restart: unless-stopped
+      environment:
+        POSTGRES_DB: "${USERS_DB_NAME}"
+        POSTGRES_USER: "${USERS_DB_USER}"
+        POSTGRES_PASSWORD: "${USERS_DB_PASS}"
+        PGPORT: ${USERS_DB_PORT}
+      expose:
+        - ${USERS_DB_PORT}
+      ports:
+        - "${USERS_DB_PORT}:${USERS_DB_PORT}"
+      volumes:
+        - ./_data/pg/users-data:/var/lib/postgresql/data
+      healthcheck:
+        test: [ "CMD-SHELL", "pg_isready -U ${USERS_DB_USER} -d ${USERS_DB_NAME} -p ${USERS_DB_PORT}" ]
+        interval: 10s
+        timeout: 5s
+        retries: 5
+        start_period: 10s
+      networks:
+        - avb-network
+
+  pg-companies:
+    image: postgres:latest
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: "${COMPANIES_DB_NAME}"
+      POSTGRES_USER: "${COMPANIES_DB_USER}"
+      POSTGRES_PASSWORD: "${COMPANIES_DB_PASS}"
+      PGPORT: ${COMPANIES_DB_PORT}
+    expose:
+      - ${COMPANIES_DB_PORT}
+    ports:
+      - "${COMPANIES_DB_PORT}:${COMPANIES_DB_PORT}"
+    volumes:
+      - ./_data/pg/companies-data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${COMPANIES_DB_USER} -d ${COMPANIES_DB_NAME} -p ${COMPANIES_DB_PORT}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - avb-network
+
+
+  # inventory-service:
+  #   build:
+  #     context: ./inventory-service
+  #     dockerfile: Dockerfile
+  #   expose:
+  #     - "3011"
+  #   environment:
+  #     - NODE_ENV=production
+  #     - JWT_SECRET=${JWT_SECRET}
+  #     - INV_DB_URI=${INV_DB_URI}
+  #     - INV_M2M_ID=${INV_M2M_ID}
+  #     - INV_M2M_SECRET=${INV_M2M_SECRET}
+  #     - CATALOG_SERVICE_URL=${CATALOG_SERVICE_URL}
+  #     - INVENTORY_SERVICE_URL=${INVENTORY_SERVICE_URL}
+  #     - AUTH_SERVICE_URL=${AUTH_SERVICE_URL}
+  #   depends_on:
+  #     - mongo-service
+  #   command: sh -c "node dist/main.js"
+  #   networks:
+  #     - food-flow-network
+  #   restart: unless-stopped
+
+  # product-catalog-service:
+  #   build:
+  #     context: ./product-catalog-service
+  #     dockerfile: Dockerfile
+  #   expose:
+  #     - "3012"
+  #   environment:
+  #     - NODE_ENV=production
+  #     - JWT_SECRET=${JWT_SECRET}
+  #     - CAT_DB_URI=${CAT_DB_URI}
+  #     - CAT_M2M_ID=${CAT_M2M_ID}
+  #     - CAT_M2M_SECRET=${CAT_M2M_SECRET}
+  #     - INVENTORY_SERVICE_URL=${INVENTORY_SERVICE_URL}
+  #     - CATALOG_SERVICE_URL=${CATALOG_SERVICE_URL}
+  #     - AUTH_SERVICE_URL=${AUTH_SERVICE_URL}
+  #   depends_on:
+  #     - mongo-service
+  #   command: sh -c "node dist/main.js"
+  #   networks:
+  #     - food-flow-network
+  #   restart: unless-stopped
+
+  # web-ui:
+  #   build:
+  #     context: ./web-ui
+  #     dockerfile: Dockerfile
+  #     args:
+  #       BACKEND_URL: ${BACKEND_URL}
+  #   expose:
+  #     - "3014"
+  #   environment:
+  #     - NODE_ENV=production
+  #     - BACKEND_URL=${BACKEND_URL}
+  #   command: sh -c "node /app/server/index.mjs"
+  #   networks:
+  #     - food-flow-network
+  #   restart: unless-stopped
