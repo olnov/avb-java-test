@@ -1,0 +1,24 @@
+server:
+  port: ${COMPANY_SERVICE_APP_PORT}
+  servlet:
+    context-path: /api/v1
+spring:
+  application:
+    name: company-service
+  datasource:
+    url: jdbc:postgresql://${COMPANIES_DB_HOST}:${COMPANIES_DB_PORT}/${COMPANIES_DB_NAME}
+    username: ${COMPANIES_DB_USER}
+    password: ${COMPANIES_DB_PASS}
+  jpa:
+    hibernate:
+      ddl-auto: update
+      locations: classpath:db/migration
+      baseline-on-migrate: true               
+      validate-on-migrate: true
+  eureka:
+    client:
+      service-url:
+        defaultZone: http://localhost:8761/eureka/
+      instance:
+        prefer-ip-address: true
+        # instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
