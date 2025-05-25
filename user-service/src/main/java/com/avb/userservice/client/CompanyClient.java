@@ -6,7 +6,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
-@FeignClient(name = "company-service", url = "http://localhost:8082")
+// @FeignClient(name = "company-service", url = "http://localhost:8082")
+@FeignClient(name = "company-service")
 public interface CompanyClient {
 	@GetMapping("/api/v1/companies/{id}")
 	CompanyDto getCompanyById(@PathVariable("id") Long id);

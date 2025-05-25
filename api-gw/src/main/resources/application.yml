@@ -2,21 +2,21 @@ server:
   port: 8080
 
 spring:
-  application:
-    name: api-gateway
   cloud:
     gateway:
       routes:
-        - id: user-service
+        - id: user-service-v1
           uri: http://localhost:8081
           predicates:
-            - Path=/user-service/**
+            - Path=/api/v1/users/**
           filters:
-            - RewritePath=/user-service/(?<segment>.*), /api/v1/${segment}
-        - id: company-service
-          uri: http://company-service:8082
+            - RewritePath=/api/v1/users/(?<segment>.*), /api/v1/users/${segment}
+        - id: company-service-v1
+          uri: http://localhost:8082
           predicates:
             - Path=/api/v1/companies/**
+          filters:
+            - RewritePath=/api/v1/companies/(?<segment>.*), /api/v1/companies/${segment}
 eureka:
   client:
     service-url:

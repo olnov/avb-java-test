@@ -49,50 +49,75 @@ services:
     networks:
       - avb-network
 
+  api-gw:
+    build:
+      context: ./api-gw
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    expose:
+      - "8080"
+    environment:
+      - GATEWAY_SERVICE_APP_PORT=${GATEWAY_SERVICE_APP_PORT}
+    networks:
+      - avb-network
+    restart: unless-stopped
 
-  # inventory-service:
-  #   build:
-  #     context: ./inventory-service
-  #     dockerfile: Dockerfile
-  #   expose:
-  #     - "3011"
-  #   environment:
-  #     - NODE_ENV=production
-  #     - JWT_SECRET=${JWT_SECRET}
-  #     - INV_DB_URI=${INV_DB_URI}
-  #     - INV_M2M_ID=${INV_M2M_ID}
-  #     - INV_M2M_SECRET=${INV_M2M_SECRET}
-  #     - CATALOG_SERVICE_URL=${CATALOG_SERVICE_URL}
-  #     - INVENTORY_SERVICE_URL=${INVENTORY_SERVICE_URL}
-  #     - AUTH_SERVICE_URL=${AUTH_SERVICE_URL}
-  #   depends_on:
-  #     - mongo-service
-  #   command: sh -c "node dist/main.js"
-  #   networks:
-  #     - food-flow-network
-  #   restart: unless-stopped
+  service-discovery:
+    build:
+      context: ./service-discovery
+      dockerfile: Dockerfile
+    ports:
+      - "8761:8761"
+    expose:
+      - "8761"
+    environment:
+      - DISCOVERY_SERVICE_APP_PORT=${DISCOVERY_SERVICE_APP_PORT}
+    networks:
+      - avb-network
+    restart: unless-stopped
 
-  # product-catalog-service:
-  #   build:
-  #     context: ./product-catalog-service
-  #     dockerfile: Dockerfile
-  #   expose:
-  #     - "3012"
-  #   environment:
-  #     - NODE_ENV=production
-  #     - JWT_SECRET=${JWT_SECRET}
-  #     - CAT_DB_URI=${CAT_DB_URI}
-  #     - CAT_M2M_ID=${CAT_M2M_ID}
-  #     - CAT_M2M_SECRET=${CAT_M2M_SECRET}
-  #     - INVENTORY_SERVICE_URL=${INVENTORY_SERVICE_URL}
-  #     - CATALOG_SERVICE_URL=${CATALOG_SERVICE_URL}
-  #     - AUTH_SERVICE_URL=${AUTH_SERVICE_URL}
-  #   depends_on:
-  #     - mongo-service
-  #   command: sh -c "node dist/main.js"
-  #   networks:
-  #     - food-flow-network
-  #   restart: unless-stopped
+  user-service:
+    build:
+      context: ./user-service
+      dockerfile: Dockerfile
+    ports:
+      - "8081:8081"
+    expose:
+      - "8081"
+    environment:
+      - USERS_DB_HOST=${USERS_DB_HOST}
+      - USERS_DB_NAME=${USERS_DB_NAME}
+      - USERS_DB_USER=${USERS_DB_USER}
+      - USERS_DB_PASS=${USERS_DB_PASS}
+      - USERS_DB_PORT=${USERS_DB_PORT}
+      - USER_SERVICE_APP_PORT=${USER_SERVICE_APP_PORT}
+    depends_on:
+      - pg-users
+    networks:
+      - avb-network
+    restart: unless-stopped
+
+  company-service:
+    build:
+      context: ./company-service
+      dockerfile: Dockerfile
+    ports:
+      - "8082:8082"
+    expose:
+      - "8082"
+    environment:
+      - COMPANIES_DB_HOST=${COMPANIES_DB_HOST}
+      - COMPANIES_DB_NAME=${COMPANIES_DB_NAME}
+      - COMPANIES_DB_USER=${COMPANIES_DB_USER}
+      - COMPANIES_DB_PASS=${COMPANIES_DB_PASS}
+      - COMPANIES_DB_PORT=${COMPANIES_DB_PORT}
+      - COMPANY_SERVICE_APP_PORT=${COMPANY_SERVICE_APP_PORT}
+    depends_on:
+      - pg-companies
+    networks:
+      - avb-network
+    restart: unless-stopped
 
   # web-ui:
   #   build:
