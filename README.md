@@ -1,5 +1,5 @@
-#### AVB Micrsoservices Sample App
-This is a simple microservices application utilises Java, Spring Boot, and Spring Cloud technology stack aimed demonstrating commutnication between services in a cloud.
+#### AVB Microservices Sample App
+This is a simple microservices application that utilises Java, Spring Boot, and Spring Cloud technology stack aimed at demonstrating communication between services in a cloud.
 
 #### Microservices
  - user-service
