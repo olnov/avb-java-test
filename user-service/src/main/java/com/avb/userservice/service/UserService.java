@@ -40,8 +40,7 @@ public class UserService {
         System.out.println("User created with ID: " + user.getId());
 
         try {
-            System.out.println("Calling companyClient.addCompanyEmployee(" + company.id() + ", " + user.getId() + ")");
-            CompanyDto updatedCompany = companyClient.addCompanyEmployee(company.id(), user.getId());
+            CompanyDto updatedCompany = companyClient.updateCompanyEmployee(company.id(), user.getId(), "add");
             System.out.println("Company employee added OK");
             if (updatedCompany == null) {
                 throw new RuntimeException("Failed to add user to company");
@@ -89,6 +88,43 @@ public class UserService {
     public UserResponseDto getUserById(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,"User not found with id: " + id));
+        return toResponseDto(user);
+    }
+
+    public void deleteUser(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found with id: " + id));
+        
+        try {
+            CompanyDto updatedCompany = companyClient.updateCompanyEmployee(user.getCompanyId(), user.getId(), "remove");
+            System.out.println("Company employee removed OK");
+            if (updatedCompany == null) {
+                throw new RuntimeException("Failed to remove user from company");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error removing user from company: " + e.getMessage(), e);
+        }
+
+        userRepository.delete(user);
+    }
+
+    public UserResponseDto updateUser(Long id, CreateUserRequestDto userDto) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found with id: " + id));
+
+        CompanyDto company = companyClient.getCompanyById(userDto.companyId());
+        if (company == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Company not found with id: " + userDto.companyId());
+        }
+
+        user.setFirstName(userDto.firstName());
+        user.setLastName(userDto.lastName());
+        user.setPhoneNumber(userDto.phoneNumber());
+        user.setCompanyId(company.id());
+
+        user = userRepository.save(user);
+
         return toResponseDto(user);
     }
 

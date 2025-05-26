@@ -4,6 +4,7 @@ import com.avb.userservice.model.dto.CompanyDto;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PathVariable;
 
 @FeignClient(name = "COMPANY-SERVICE")
@@ -12,5 +13,9 @@ public interface CompanyClient {
 	CompanyDto getCompanyById(@PathVariable("id") Long id);
 
     @PutMapping("/api/v1/companies/{companyId}/employees/{userId}")
-    CompanyDto addCompanyEmployee(@PathVariable("companyId") Long companyId, @PathVariable("userId") Long userId);
+    CompanyDto updateCompanyEmployee(
+        @PathVariable("companyId") Long companyId, 
+        @PathVariable("userId") Long userId,
+        @RequestParam("action") String action
+    );
 }

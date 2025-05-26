@@ -1,6 +1,8 @@
 package com.avb.userservice.controller;
 
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -36,5 +38,19 @@ public class UserController {
     @GetMapping("/{id}")
     public UserResponseDto getUserById(@PathVariable Long id) {
         return userService.getUserById(id);
+    }
+
+    @PatchMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public UserResponseDto updateUser(@PathVariable Long id, @RequestBody @Valid CreateUserRequestDto userDto) {
+        System.out.println("Updating user with ID: " + id);
+        return userService.updateUser(id, userDto);
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteUser(@PathVariable Long id) {
+        System.out.println("Deleting user with ID: " + id);
+        userService.deleteUser(id);
     }
 }
