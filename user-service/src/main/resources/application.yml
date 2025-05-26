@@ -18,12 +18,18 @@ spring:
 eureka:
   client:
     service-url:
-      defaultZone: http://localhost:8761/eureka/
+      defaultZone: http://service-discovery:8761/eureka/
     instance:
       prefer-ip-address: true
-      # instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
 feign:
-  httpclient:
-    enabled: false
-  okhttp:
+  discovery:
     enabled: true
+  client:
+    config:
+      default:
+        connectTimeout: 5000
+        readTimeout: 5000 
+  httpclient:
+    enabled: true
+  # okhttp:
+  #   enabled: true

@@ -2,17 +2,19 @@ server:
   port: 8080
 
 spring:
+  application:
+    name: api-gateway
   cloud:
     gateway:
       routes:
         - id: user-service-v1
-          uri: http://localhost:8081
+          uri: ${USER_SERVICE_URL}
           predicates:
             - Path=/api/v1/users/**
           filters:
             - RewritePath=/api/v1/users/(?<segment>.*), /api/v1/users/${segment}
         - id: company-service-v1
-          uri: http://localhost:8082
+          uri: ${COMPANY_SERVICE_URL}
           predicates:
             - Path=/api/v1/companies/**
           filters:
@@ -20,7 +22,7 @@ spring:
 eureka:
   client:
     service-url:
-      defaultZone: http://localhost:8761/eureka/
+      defaultZone: http://service-discovery:8761/eureka/
     instance:
       prefer-ip-address: true
 
