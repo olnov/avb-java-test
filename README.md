@@ -10,7 +10,7 @@ This is a simple microservices application that utilises Java, Spring Boot, and 
 #### How to run
 
 Set env parameters as epr description in .env.example
-```
+```dotenv
 # PostgreSQL servers settings
 USERS_DB_HOST=localhost
 USERS_DB_NAME=avb_users
@@ -52,7 +52,7 @@ COMPANY_SERVICE_URL=http://company-service:8082
 ```
 
 Use docker compose to run the app:
-```cmd
+```console
 docker compose -f docker-compose.yml up
 ```
 #### How to test
