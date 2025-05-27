@@ -28,5 +28,5 @@ eureka:
 
 logging:
   level:
-    org.springframework.cloud.gateway: DEBUG
-    org.springframework.web: DEBUG
+    org.springframework.cloud.gateway: INFO
+    org.springframework.web: INFO

@@ -12,21 +12,17 @@ This is a simple microservices application that utilises Java, Spring Boot, and 
 Set env parameters as epr description in .env.example
 ```dotenv
 # PostgreSQL servers settings
-USERS_DB_HOST=localhost
+USERS_DB_HOST=pg-users
 USERS_DB_NAME=avb_users
 USERS_DB_USER=postgres
 USERS_DB_PASS=password!1
 USERS_DB_PORT=5440
 
-COMPANIES_DB_HOST=localhost
+COMPANIES_DB_HOST=pg-companies
 COMPANIES_DB_NAME=avb_companies
 COMPANIES_DB_USER=postgres
 COMPANIES_DB_PASS=password!1
 COMPANIES_DB_PORT=5441
-
-# API server settings and dependencies URLs
-USER_SERVICE_DATABASE_URL=postgresql://postgres:password!1@localhost:5440/avb_users
-COMPANY_SERVICE_DATABASE_URL=postgresql://postgres:password!1@localhost:5440/avb_companies
 
 # User service settings
 USER_SERVICE_APP_PORT=8081
@@ -40,9 +36,6 @@ GATEWAY_SERVICE_APP_PORT=8080
 # Service discovery settings
 DISCOVERY_SERVICE_APP_PORT=8761
 
-#Discovery service URL
-#DISCOVERY_SERVICE_URL=http://localhost:8761/eureka/
-DISCOVERY_SERVICE_URL=http://service-discovery:8761/eureka/
 
 # User service URL
 USER_SERVICE_URL=http://user-service:8081
@@ -60,3 +53,21 @@ docker compose -f docker-compose.yml up
 2. You can use SwaggerUI to test user and copmany services separatelly.
     - User service: http://localhost:8081/api/v1/swagger-ui/index.html
     - Company service: http://localhost:8082/api/v1/swagger-ui/index.html
+
+## Code snippets for testing
+ - Creating a new company. POST http://localhost:8080/api/v1/companies
+ ```json
+ {
+  "companyName": "Microsoft",
+  "budget": 1000.00,
+}
+```
+ - Adding user to a company. POST http://localhost:8080/api/v1/users
+ ```json
+ {
+  "firstName": "Bill",
+  "lastName": "Gates",
+  "phoneNumber": "+79222222222", <-- Supports multinational formats using google phonelibnumber
+  "companyId": 3 <-- Id of a company created
+}
+```

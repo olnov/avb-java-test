@@ -59,7 +59,6 @@ services:
       - "8080"
     environment:
       - GATEWAY_SERVICE_APP_PORT=${GATEWAY_SERVICE_APP_PORT}
-      - DISCOVERY_SERVICE_URL=${DISCOVERY_SERVICE_URL}
       - USER_SERVICE_URL=${USER_SERVICE_URL}
       - COMPANY_SERVICE_URL=${COMPANY_SERVICE_URL}
     networks:
@@ -75,7 +74,7 @@ services:
     ports:
       - "8761:8761"
     expose:
-      - ${DISCOVERY_SERVICE_APP_PORT}
+      - "8761"
     volumes:
       - ./_data/discovery-service-data:/data
     healthcheck:
@@ -93,9 +92,9 @@ services:
       context: ./user-service
       dockerfile: Dockerfile
     ports:
-      - "8081:8081"
+      - "8081:${USER_SERVICE_APP_PORT}"
     expose:
-      - "8081"
+      - "${USER_SERVICE_APP_PORT}"
     environment:
       - USERS_DB_HOST=${USERS_DB_HOST}
       - USERS_DB_NAME=${USERS_DB_NAME}
@@ -103,7 +102,6 @@ services:
       - USERS_DB_PASS=${USERS_DB_PASS}
       - USERS_DB_PORT=${USERS_DB_PORT}
       - USER_SERVICE_APP_PORT=${USER_SERVICE_APP_PORT}
-      - DISCOVERY_SERVICE_URL=${DISCOVERY_SERVICE_URL}
     depends_on:
       - pg-users
       - service-discovery
@@ -116,9 +114,9 @@ services:
       context: ./company-service
       dockerfile: Dockerfile
     ports:
-      - "8082:8082"
+      - "8082:${COMPANY_SERVICE_APP_PORT}"
     expose:
-      - "8082"
+      - "${COMPANY_SERVICE_APP_PORT}"
     environment:
       - COMPANIES_DB_HOST=${COMPANIES_DB_HOST}
       - COMPANIES_DB_NAME=${COMPANIES_DB_NAME}
@@ -126,26 +124,9 @@ services:
       - COMPANIES_DB_PASS=${COMPANIES_DB_PASS}
       - COMPANIES_DB_PORT=${COMPANIES_DB_PORT}
       - COMPANY_SERVICE_APP_PORT=${COMPANY_SERVICE_APP_PORT}
-      - DISCOVERY_SERVICE_URL=${DISCOVERY_SERVICE_URL}
     depends_on:
       - pg-companies
       - service-discovery
     networks:
       - avb-network
     restart: unless-stopped
-
-  # web-ui:
-  #   build:
-  #     context: ./web-ui
-  #     dockerfile: Dockerfile
-  #     args:
-  #       BACKEND_URL: ${BACKEND_URL}
-  #   expose:
-  #     - "3014"
-  #   environment:
-  #     - NODE_ENV=production
-  #     - BACKEND_URL=${BACKEND_URL}
-  #   command: sh -c "node /app/server/index.mjs"
-  #   networks:
-  #     - food-flow-network
-  #   restart: unless-stopped
