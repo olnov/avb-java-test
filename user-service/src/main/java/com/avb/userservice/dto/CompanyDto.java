@@ -1,4 +1,4 @@
-package com.avb.userservice.model.dto;
+package com.avb.userservice.dto;
 
 public record CompanyDto(
     Long id,

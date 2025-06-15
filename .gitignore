@@ -3,3 +3,10 @@
 
 # Docker local volumes
 _data/
+
+# VScode
+.vscode/
+.vscode
+
+# Idea
+.idea

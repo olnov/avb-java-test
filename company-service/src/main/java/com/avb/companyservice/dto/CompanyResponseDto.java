@@ -1,4 +1,4 @@
-package com.avb.companyservice.model.dto;
+package com.avb.companyservice.dto;
 
 import java.util.List;
 

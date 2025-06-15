@@ -1,10 +1,12 @@
 package com.avb.userservice.client;
 
-import com.avb.userservice.model.dto.CompanyDto;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import com.avb.userservice.dto.CompanyDto;
+
 import org.springframework.web.bind.annotation.PathVariable;
 
 @FeignClient(name = "COMPANY-SERVICE")

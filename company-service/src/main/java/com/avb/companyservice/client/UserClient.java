@@ -4,7 +4,7 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
-import com.avb.companyservice.model.dto.UserDto;
+import com.avb.companyservice.dto.UserDto;
 
 @FeignClient(name = "USER-SERVICE")
 public interface UserClient {

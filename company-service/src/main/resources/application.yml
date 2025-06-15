@@ -2,6 +2,9 @@ server:
   port: ${COMPANY_SERVICE_APP_PORT}
   servlet:
     context-path: /api/v1
+logging:
+  level:
+    com.avb.companyservice: DEBUG  
 spring:
   application:
     name: company-service

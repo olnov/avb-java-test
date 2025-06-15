@@ -1,4 +1,4 @@
-package com.avb.companyservice.model.entity;
+package com.avb.companyservice.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -7,12 +7,15 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.util.List;
+
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
-import lombok.Data;
 
 @Entity
-@Data
+@Getter
+@Setter
 @Table(name = "companies")
 public class Company {
     

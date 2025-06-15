@@ -4,26 +4,32 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import com.avb.companyservice.mapper.CompanyMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.avb.companyservice.client.UserClient;
-import com.avb.companyservice.model.dto.CompanyResponseDto;
-import com.avb.companyservice.model.dto.CompanyWithUsersResponseDto;
-import com.avb.companyservice.model.dto.CreateCompanyDto;
-import com.avb.companyservice.model.dto.UserDto;
-import com.avb.companyservice.model.entity.Company;
-import com.avb.companyservice.model.repository.CompanyRepository;
+import com.avb.companyservice.dto.CompanyResponseDto;
+import com.avb.companyservice.dto.CompanyWithUsersResponseDto;
+import com.avb.companyservice.dto.CreateCompanyDto;
+import com.avb.companyservice.dto.UserDto;
+import com.avb.companyservice.entity.Company;
+import com.avb.companyservice.repository.CompanyRepository;
+
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
+@Slf4j
 public class CompanyService {
     private final CompanyRepository companyRepository;
     private final UserClient userClient;
+    private final CompanyMapper companyMapper;
 
     public CompanyResponseDto createCompany(CreateCompanyDto companyDto) {
         Company company = new Company();
@@ -32,7 +38,9 @@ public class CompanyService {
         company.setUserIds(
                 companyDto.userIds() != null ? companyDto.userIds() : Collections.emptyList());
         Company newCompany = companyRepository.save(company);
-        return toCompanyResponseDto(newCompany);
+        log.info("Company created with id: {}", newCompany.getId());
+        log.debug("Company details: {}", newCompany);
+        return companyMapper.toCompanyResponseDto(newCompany);
     }
 
     public CompanyResponseDto addCompanyEmployee(Long companyId, Long userId) {
@@ -44,16 +52,28 @@ public class CompanyService {
             company.getUserIds().add(userId);
         }
         Company updatedCompany = companyRepository.save(company);
-        return toCompanyResponseDto(updatedCompany);
+        log.info("Added user with id: {} to company with id: {}", userId, companyId);
+        log.debug("Updated company details: {}", updatedCompany);
+        return companyMapper.toCompanyResponseDto(updatedCompany);
+    }
+
+    public List<CompanyResponseDto> getAllCompanies() {
+        List<Company> companies = companyRepository.findAll();
+        log.debug("Fetched {} companies", companies.size());
+        return companies.stream()
+                .map(companyMapper::toCompanyResponseDto)
+                .collect(Collectors.toList());
     }
 
     public CompanyResponseDto getCompanyById(Long id) {
         Company company = companyRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Company not found with id: " + id));
-        return toCompanyResponseDto(company);
+        log.info("Retrieved company with id: {}", id);
+        log.debug("Company details: {}", company);
+        return companyMapper.toCompanyResponseDto(company);
     }
 
-    public CompanyResponseDto udpateCompanyEmployee(Long companyId, Long userId, String action) {
+    public CompanyResponseDto updateCompanyEmployee(Long companyId, Long userId, String action) {
         Company company = companyRepository.findById(companyId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Company not found with id: " + companyId));
         
@@ -75,13 +95,16 @@ public class CompanyService {
         }
         company.setUserIds(userIds);
         Company updatedCompany = companyRepository.save(company);
-        return toCompanyResponseDto(updatedCompany);
+        log.info("Updated company with id: {} by {} user with id: {}", companyId, action, userId);
+        log.debug("Updated company details: {}", updatedCompany);
+        return companyMapper.toCompanyResponseDto(updatedCompany);
     }
 
     
     public void deleteCompany(Long id) {
         Company company = companyRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Company not found with id: " + id));
+        log.info("Deleting company with id: {}", id);
         companyRepository.delete(company);
     }
 
@@ -95,13 +118,17 @@ public class CompanyService {
                         .filter(user -> user != null)
                         .collect(Collectors.toList()) 
                 : Collections.emptyList();
-
-        return new CompanyWithUsersResponseDto(
+        
+        var companyWithUsers = new CompanyWithUsersResponseDto(
                 company.getId(),
                 company.getCompanyName(),
                 company.getBudget(),
                 users
         );
+
+        log.info("Retrieved company with id: {} and its users", id);
+        log.debug("Company with users details: {}", companyWithUsers);
+        return companyWithUsers;
     }
 
     public CompanyResponseDto updateCompanyById(Long id, CreateCompanyDto companyDto) {
@@ -113,15 +140,17 @@ public class CompanyService {
         company.setUserIds(companyDto.userIds() != null ? companyDto.userIds() : Collections.emptyList());
         
         Company updatedCompany = companyRepository.save(company);
-        return toCompanyResponseDto(updatedCompany);
+        log.info("Updated company with id: {}", id);
+        log.debug("Updated company details: {}", updatedCompany);
+        return companyMapper.toCompanyResponseDto(updatedCompany);
     }
 
-    private CompanyResponseDto toCompanyResponseDto(Company company) {
-        return new CompanyResponseDto(
-                company.getId(),
-                company.getCompanyName(),
-                company.getBudget(),
-                company.getUserIds() != null ? company.getUserIds() : Collections.emptyList()
-        );
-    }
+//    private CompanyResponseDto toCompanyResponseDto(Company company) {
+//        return new CompanyResponseDto(
+//                company.getId(),
+//                company.getCompanyName(),
+//                company.getBudget(),
+//                company.getUserIds() != null ? company.getUserIds() : Collections.emptyList()
+//        );
+//    }
 }

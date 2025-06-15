@@ -47,6 +47,9 @@ dependencies {
 	implementation 'com.googlecode.libphonenumber:libphonenumber:9.0.5'
 	// implementation 'io.github.openfeign:feign-okhttp:13.6'
 	implementation 'org.apache.httpcomponents:httpclient:4.5.14'
+	implementation 'org.slf4j:slf4j-api:2.0.17'
+	implementation 'org.mapstruct:mapstruct:1.6.3'
+	annotationProcessor 'org.mapstruct:mapstruct-processor:1.6.3'
 }
 
 dependencyManagement {

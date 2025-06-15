@@ -2,25 +2,32 @@ package com.avb.userservice.service;
 
 import java.util.List;
 import java.util.stream.Collectors;
+
+import com.avb.userservice.mapper.UserMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import com.avb.userservice.client.CompanyClient;
-import com.avb.userservice.model.dto.CompanyDto;
-import com.avb.userservice.model.dto.CreateUserRequestDto;
-import com.avb.userservice.model.dto.UserResponseDto;
-import com.avb.userservice.model.dto.UserWithCompnayDto;
-import com.avb.userservice.model.entity.User;
-import com.avb.userservice.model.repository.UserRepository;
+import com.avb.userservice.dto.CompanyDto;
+import com.avb.userservice.dto.CreateUserRequestDto;
+import com.avb.userservice.dto.UpdateUserRequestDto;
+import com.avb.userservice.dto.UserResponseDto;
+import com.avb.userservice.dto.UserWithCompnayDto;
+import com.avb.userservice.entity.User;
+import com.avb.userservice.repository.UserRepository;
+
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
+@Slf4j
 public class UserService {
     private final UserRepository userRepository;
     private final CompanyClient companyClient;
+    private final UserMapper userMapper;
 
     public UserResponseDto createUser(CreateUserRequestDto userDto) {
         CompanyDto company = companyClient.getCompanyById(userDto.companyId());
@@ -28,16 +35,12 @@ public class UserService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Company not found with id: " + userDto.companyId());
         }
 
-        System.out.println("Creating user with company: " + company.companyName());
-
         User user = new User();
         user.setFirstName(userDto.firstName());
         user.setLastName(userDto.lastName());
         user.setPhoneNumber(userDto.phoneNumber());
         user.setCompanyId(company.id());
         user = userRepository.save(user);
-
-        System.out.println("User created with ID: " + user.getId());
 
         try {
             CompanyDto updatedCompany = companyClient.updateCompanyEmployee(company.id(), user.getId(), "add");
@@ -51,7 +54,9 @@ public class UserService {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error adding user to company: " + e.getMessage(), e);
         }
         
-        return toResponseDto(user);
+        log.info("User created with id: {}", user.getId());
+        log.debug("User details: {}", user);
+        return userMapper.toResponseDto(user);
     }
 
     public UserWithCompnayDto getByFullName(String firstName, String lastName) {
@@ -60,13 +65,17 @@ public class UserService {
         
         CompanyDto company = companyClient.getCompanyById(user.getCompanyId());
 
-        return new UserWithCompnayDto(
+        UserWithCompnayDto userWithCompany = new UserWithCompnayDto(
                 user.getId(),
                 user.getFirstName(),
                 user.getLastName(),
                 user.getPhoneNumber(),
                 company
         );
+
+        log.info("User retrieved with id: {}", user.getId());
+        log.debug("User details: {}", userWithCompany);
+        return userWithCompany;
     }
 
     public List<UserWithCompnayDto> getAllUsers() {
@@ -88,7 +97,10 @@ public class UserService {
     public UserResponseDto getUserById(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,"User not found with id: " + id));
-        return toResponseDto(user);
+        
+        log.info("User retrieved with id: {}", user.getId());
+        log.debug("User details: {}", user);
+        return userMapper.toResponseDto(user);
     }
 
     public void deleteUser(Long id) {
@@ -97,7 +109,6 @@ public class UserService {
         
         try {
             CompanyDto updatedCompany = companyClient.updateCompanyEmployee(user.getCompanyId(), user.getId(), "remove");
-            System.out.println("Company employee removed OK");
             if (updatedCompany == null) {
                 throw new RuntimeException("Failed to remove user from company");
             }
@@ -106,10 +117,12 @@ public class UserService {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error removing user from company: " + e.getMessage(), e);
         }
 
+        log.info("Deleting user with id: {}", user.getId());
+        log.debug("User details: {}", user);
         userRepository.delete(user);
     }
 
-    public UserResponseDto updateUser(Long id, CreateUserRequestDto userDto) {
+    public UserResponseDto updateUser(Long id, UpdateUserRequestDto userDto) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found with id: " + id));
 
@@ -125,16 +138,8 @@ public class UserService {
 
         user = userRepository.save(user);
 
-        return toResponseDto(user);
-    }
-
-    private UserResponseDto toResponseDto(User user) {
-        return new UserResponseDto(
-            user.getId(),
-            user.getFirstName(),
-            user.getLastName(),
-            user.getPhoneNumber(),
-            user.getCompanyId()
-        );
+        log.info("User updated with id: {}", user.getId());
+        log.debug("User details: {}", user);
+        return userMapper.toResponseDto(user);
     }
 }

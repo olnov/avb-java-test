@@ -1,4 +1,4 @@
-package com.avb.userservice.model.dto;
+package com.avb.userservice.dto;
 
 import com.avb.userservice.validation.ValidPhoneNumber;
 import jakarta.validation.constraints.NotBlank;
